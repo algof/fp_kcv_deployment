@@ -11,7 +11,7 @@ COPY model.pt .
 
 # Install dependencies ke folder terpisah
 RUN pip install --upgrade pip && \
-    pip install --prefix=/install -r requirements.txt
+    pip install -r requirements.txt
 
 # Salin source code
 COPY main.py .
