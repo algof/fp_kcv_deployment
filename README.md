@@ -28,6 +28,11 @@ add new DNS
 
 akses lewat DNS:8501 atau VM_PUBLIC_IP:8501
 ```
+Jika ingin akses tanpa lewat port 8501 dan reverse proxy
+```sh
+docker run -d -p 80:8501 fp_kcv
+*-d buat daemon
+```
 
 # Langkah-langkah reverse proxy di Microsoft Azure
 ```sh
