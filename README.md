@@ -1,15 +1,42 @@
 # Deployment FP KCV
 
-## Langkah-langkah Deployment di Railway
+## Deployment di Railway
+
+**Prerequisites:** punya akun GitHub dan repositories app yang fungsional
+
 1. [https://railway.com](https://railway.com/)
 2. Buka website di atas dan login dengan akun GitHub
 3. Pastikan di GitHub sudah ada repositories yang siap deployment
-4. Isi repositories : Dockerfile, main.py, requirements.txt, model.pt
+4. Isi repositories : Dockerfile, main.py, requirements.txt, model
 5. `Deploy a new project`
 6. `Deploy from GitHub repo`
 7. Pilih repo yang ingin di deploy 
 
-## Langkah-langkah Deployment di Micrososft Azure
+## Deployment di Micrososft Azure
+
+**Prerequisites:** : punya akun Microsoft Azure (free dari ITS)
+
+1. [Azure](https://portal.azure.com/?Microsoft_Azure_Education_correlationId=c3c8a54e-f40c-4302-bd0a-015bc9a32c1a&Microsoft_Azure_Education_newA4E=true&Microsoft_Azure_Education_asoSubGuid=61a18394-4bb9-4f30-b719-636db39a8490#home)
+2. Buka link di atas, pilih `Virtual machines`
+3. Pilih `Create`, klik `Azure virtual machine`
+4. Isi atribut-atribut form
+    - `Resource group` : `Create new`
+    - `Virtual machine name` : `your_vm_name_here`
+    - `Region` : `(Asia Pasific) Australia East`
+    - `Availability options` :  `Availability zone`
+    - `Zone options` : `Self-selected zone`
+    - `Security type` : `Trusted launch virtual machines`
+    - `Image` : Ubuntu Server 22.04 LTS - x64 Gen2
+    - `VM architecture` : x64
+    - `Run with Azure Spot discount` : `Check` (Opsional)
+    - `Authentication type` : SSH public key
+    - `Username` : azureuser
+    - `SSH public key source` : Generate new key pair
+    - `SSH Key Type` : RSA SSH Format
+    - `Key pair name` : your_key_name_here (untuk connect SSH dari local kita)
+    - `Public inbound ports` : Allow selected ports
+    - `Select inbound ports` : Check HTTP (80), HTTPS (443), dan SSH (22)
+5. Review + create
 ```sh
 sudo apt-get update
 sudo apt install docker.io
