@@ -20,12 +20,12 @@
 2. Buka link di atas, pilih `Virtual machines`
 3. Pilih `Create`, klik `Azure virtual machine`
 4. Isi atribut-atribut form
-    - `Resource group` : `Create new`
-    - `Virtual machine name` : `your_vm_name_here`
-    - `Region` : `(Asia Pasific) Australia East`
-    - `Availability options` :  `Availability zone`
-    - `Zone options` : `Self-selected zone`
-    - `Security type` : `Trusted launch virtual machines`
+    - `Resource group` : Create new
+    - `Virtual machine name` : your_vm_name_here
+    - `Region` : (Asia Pasific) Australia East
+    - `Availability options` :  Availability zone
+    - `Zone options` : Self-selected zone
+    - `Security type` : Trusted launch virtual machines
     - `Image` : Ubuntu Server 22.04 LTS - x64 Gen2
     - `VM architecture` : x64
     - `Run with Azure Spot discount` : `Check` (Opsional)
