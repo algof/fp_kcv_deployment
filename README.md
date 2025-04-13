@@ -12,9 +12,9 @@
 6. `Deploy from GitHub repo`
 7. Pilih repo yang ingin di deploy 
 
-## Deployment di Micrososft Azure
+## Deployment di Microsoft Azure
 
-**Prerequisites:** : punya akun Microsoft Azure (free dari ITS)
+**Prerequisites:** : punya akun Microsoft Azure (free dari ITS), punya terminal Ubuntu WSL yang sudah di install SSH
 
 1. [Azure](https://portal.azure.com/?Microsoft_Azure_Education_correlationId=c3c8a54e-f40c-4302-bd0a-015bc9a32c1a&Microsoft_Azure_Education_newA4E=true&Microsoft_Azure_Education_asoSubGuid=61a18394-4bb9-4f30-b719-636db39a8490#home)
 2. Buka link di atas, pilih `Virtual machines`
@@ -37,80 +37,109 @@
     - `Public inbound ports` : Allow selected ports
     - `Select inbound ports` : Check HTTP (80), HTTPS (443), dan SSH (22)
 5. Review + create
-```sh
-sudo apt-get update
-sudo apt install docker.io
+    - `Preferred phone number` : Isi nomer telepon kalian
+6. Download private key and create resource
+7. Tunggu loading VM nya, lalu klik `Go to resource`
+8. Di tab `Overview` pilih `Connect` cari `Native SSH` klik `Select`
+9. Masuk ke VM via SSH
+    - Download private key SSH dari Azure (yang ada pada langkah nomer 6)
+    - Pindahkan ke direktori ~/.ssh
+        ```bash
+        chmod 400 ~/.ssh/<your-private-key>
+        ```
+        ```bash
+        ssh -i ~/.ssh/<your_key_name_here>.pem azureuser@<your_VM_public_IP>
+        ```
+10. Download packages:
+    ```bash
+    sudo apt-get update
+    sudo apt install docker.io
+    ```
+11. Download app repositories dari GitHub:
+    ```bash
+    git clone https://github.com/algof/fp_kcv_deployment.git
+    ```
+12. Build Image: (Di direktori root proyek, tempat `Dockerfile` berada)
+    ```bash
+    cd fp_kcv_deployment
+    sudo docker build -t <your-image-name> .
+    ```
+13. Run Container:
+    ```bash
+    sudo docker run -d -p 8501:8501 --name <your-container-name> <your-image-name>
+    ```
+14. Azure network settings: <br>
+    Add new inbound rule for port 8501 in Azure <br>
+    Allow access from TCP to destination port 8501
+15. Access App:
+    Buka browser ke `http://<your-vm-public-ip>:8501`
 
-git clone https://github.com/algof/fp_kcv_deployment.git
+**Cara lain untuk akses**
+1. Run Container:
+    ```bash
+    sudo docker run -d -p 80:8501 --name <your-container-name> <your-image-name>
+    ```
+2. Access App:
+    Buka browser ke `http://<your-vm-public-ip>`
+3. Jika ingin bisa set DNS name untuk mengganti akses ke `http://<your-vm-dns-name>`
 
-cd fp_kcv_deployment
+---
 
-sudo docker build -t "image_name_here" .
+**Untuk Stop & Hapus Container:**
 
-sudo docker run -d -p 8501:8501 fp-kcv
-*-d buat daemon
+* `docker stop <your-container-name>`
+* `docker rm <your-container-name>`
 
-add new inbound rule for port 8501
-add new DNS
+---
 
-akses lewat DNS:8501 atau VM_PUBLIC_IP:8501
-```
-Jika ingin akses tanpa lewat port 8501 dan reverse proxy
-```sh
-docker run -d -p 80:8501 fp_kcv
-*-d buat daemon
-```
+**Opsional: Reverse proxy di Microsoft Azure**
+1. Install nginx:
+    ```sh
+    sudo apt install nginx
+    sudo systemctl status nginx
+    ```
+2. Edit nginx.conf:
+    ```sh
+    cd /etc/nginx/
+    sudo nano nginx.conf
+    ```
+    uncomment `server_names_hash_bucket_size` <br>
+    ganti size ke 128
+3. Buat konfigurasi nginx:
+    ```sh
+    sudo nano /etc/nginx/sites-available/streamlit.com
+    ```
+    ```conf
+    server {
+        listen 80;
+        server_name <your-vm-dns-name>.australiaeast.cloudapp.azure.com;
 
-# Langkah-langkah reverse proxy di Microsoft Azure
-```sh
-sudo apt install nginx
-```
-```sh
-sudo systemctl status nginx
-```
-```sh
-cd /etc/nginx/
-```
-```sh
-sudo nano nginx.conf
-```
-uncomment server_names_hash_bucket_size <br>
-ganti size ke 128
+        client_max_body_size 200M;
 
-```sh
-sudo nano /etc/nginx/sites-available/streamlit.com
-```
-```conf
-server {
-    listen 80;
-    server_name dapagantenk.australiaeast.cloudapp.azure.com;
+        location / {
+            proxy_pass http://localhost:8501;
 
-    client_max_body_size 200M;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
 
-    location / {
-        proxy_pass http://localhost:8501;
-
-        # WebSocket support
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-
-        # Basic headers
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_redirect off;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_redirect off;
+        }
     }
-}
-```
-```sh
-sudo ln -s /etc/nginx/sites-available/streamlit.com /etc/nginx/sites-enabled
-```
-```sh
-sudo nginx -t
-```
-
-```sh
-sudo systemctl restart nginx
-```
-Coba akses tanpa port
+    ```
+4. Aktifkan konfigurasi nginx:
+    ```sh
+    sudo ln -s /etc/nginx/sites-available/streamlit.com /etc/nginx/sites-enabled
+    ```
+5. Mengetes konfigurasi nginx:
+    ```sh
+    sudo nginx -t
+    ```
+6. Restart nginx:
+    ```sh
+    sudo systemctl restart nginx
+    ```
+7. Sebelumnya dari `http://<your-vm-dns-name>:8501` ke `http://<your-vm-dns-name>`
