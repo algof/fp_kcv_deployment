@@ -12,6 +12,8 @@
 6. `Deploy from GitHub repo`
 7. Pilih repo yang ingin di deploy 
 
+---
+
 ## Deployment di Microsoft Azure
 
 **Prerequisites:** : punya akun Microsoft Azure (free dari ITS), punya terminal Ubuntu WSL yang sudah di install SSH
